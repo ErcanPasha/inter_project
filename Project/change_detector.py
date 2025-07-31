@@ -2,7 +2,7 @@ import sys
 import cv2
 import numpy as np
 
-def compare_images(image1_path, image2_path, threshold=30):
+def compare_images(image1_path, image2_path, threshold=20):
     # 1) Fotoğrafları oku (gri tonlamalı)
     img1 = cv2.imread(image1_path, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(image2_path, cv2.IMREAD_GRAYSCALE)
@@ -43,4 +43,4 @@ if __name__ == "__main__":
     image1_path = sys.argv[1]
     image2_path = sys.argv[2]
     # Default threshold: 30 (%)
-    compare_images(image1_path, image2_path, threshold=30)
+    compare_images(image1_path, image2_path, threshold=20)

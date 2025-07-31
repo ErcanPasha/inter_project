@@ -2,7 +2,6 @@ import os
 import time
 import subprocess
 import datetime
-import cv2
 import paho.mqtt.client as mqtt
 import json
 import shutil
@@ -25,12 +24,25 @@ client.connect(BROKER, PORT, 60)
 
 # ---------- Yardımcı Fonksiyonlar ----------
 def take_photo(filename):
-    cap = cv2.VideoCapture(0)
-    time.sleep(0.1)  # Kameranın oturması için kısa bekleme
-    ret, frame = cap.read()
-    if ret:
-        cv2.imwrite(filename, frame)
-    cap.release()
+    # Fotoğraf çekimi 1920x1080 çözünürlükte
+    result = subprocess.run(["libcamera-jpeg", "-o", filename, "--width", "1920", "--height", "1080"])
+    if result.returncode != 0:
+        print(f"[WARN] Kamera görüntü yakalayamadı: {filename}")
+
+def record_video(video_h264, duration=5):
+    # Video çekimi 1920x1080 çözünürlükte
+    result = subprocess.run([
+        "libcamera-vid", "-t", str(duration * 1000),
+        "-o", video_h264, "--width", "1920", "--height", "1080"
+    ])
+    if result.returncode != 0:
+        print(f"[WARN] Video yakalanamadı: {video_h264}")
+
+def convert_h264_to_mp4(h264_path, mp4_path):
+    # ffmpeg dönüşümü
+    result = subprocess.run(["ffmpeg", "-y", "-i", h264_path, "-c", "copy", mp4_path])
+    if result.returncode != 0:
+        print(f"[WARN] MP4 dönüşümü başarısız: {h264_path}")
 
 def send_to_thingsboard(message):
     payload = {"alert": message}
@@ -42,7 +54,7 @@ def upload_to_drive(folder_path):
 
 def clear_file(filepath):
     try:
-        if os.path.exists(filepath):
+        if filepath and os.path.exists(filepath):
             os.remove(filepath)
     except Exception as e:
         print(f"[WARN] Dosya silinemedi: {filepath}, Hata: {e}")
@@ -53,44 +65,51 @@ def main():
     prev_photo = None
 
     while True:
-        # 1) Fotoğraf çek
         img_counter += 1
         current_photo = os.path.join(PHOTO_DIR, f"img_{img_counter}.jpg")
         take_photo(current_photo)
 
-        # 2) Önceki fotoğraf varsa değişim kontrolü
-        if prev_photo is not None:
+        if prev_photo and os.path.exists(prev_photo):
             result = subprocess.run(
                 ["python3", "change_detector.py", prev_photo, current_photo],
                 stdout=subprocess.PIPE, text=True
             )
             diff_flag = result.stdout.strip()
 
-            # 3) Değişim varsa event handler çalıştır
             if diff_flag == "1":
-                print("[INFO] Değişim algılandı, event handler başlatılıyor...")
+                print("[INFO] Değişim algılandı, video kaydı başlatılıyor...")
+                video_h264 = os.path.join(PHOTO_DIR, f"vid_{img_counter}.h264")
+                video_mp4 = os.path.join(PHOTO_DIR, f"vid_{img_counter}.mp4")
 
-                # Event handler çalıştır (N-1 ve N gönder)
+                # Video çekimi ve mp4 dönüşümü
+                record_video(video_h264)
+                convert_h264_to_mp4(video_h264, video_mp4)
+
+                # Event handler çağrısı (3 argüman: prev, current, video)
                 result_event = subprocess.run(
-                    ["python3", "event_handler.py", prev_photo, current_photo],
+                    ["python3", "event_handler.py", prev_photo, current_photo, video_mp4],
                     stdout=subprocess.PIPE, text=True
                 )
                 output_folder = result_event.stdout.strip()
 
-                # 4) Drive'a yükle
-                upload_to_drive(output_folder)
+                # Klasör yeniden adlandırma (saat_dakika_saniye)
+                timestamp = datetime.datetime.now().strftime("%H_%M_%S")
+                final_folder = f"{output_folder}_{timestamp}"
+                shutil.move(output_folder, final_folder)
 
-                # 5) ThingsBoard'a mesaj gönder
-                send_to_thingsboard(f"Yeni bir değişim tespit edildi. Klasör adı: {os.path.basename(output_folder)}")
+                # Drive'a yükle
+                upload_to_drive(final_folder)
 
-        # 4) Önceki (N-1) fotoğrafı sil, böylece gereksiz birikim olmaz
-        if prev_photo is not None:
+                # ThingsBoard'a mesaj
+                send_to_thingsboard(f"Yeni değişim: {os.path.basename(final_folder)}")
+
+                # Temizlik
+                clear_file(video_h264)
+                clear_file(video_mp4)
+
             clear_file(prev_photo)
 
-        # 5) Yeni fotoğrafı bir sonraki karşılaştırma için sakla
         prev_photo = current_photo
-
-        # 6) Döngü arası bekleme
         time.sleep(5)
 
 if __name__ == "__main__":
