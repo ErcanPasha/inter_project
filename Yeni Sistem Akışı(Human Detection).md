@@ -12,11 +12,11 @@
    ->MediaPipe kullanarak insan tespiti yapar ve toplam kişi sayısını döndürür.
    ->Sonucu (kişi sayısı + kareler) event\_handler mantığına aktarır.
 4. **event\_handler.py (önceki sürümlerde olduğu gibi)**
-->İnsan tespit olayını işler
+   ->İnsan tespit olayını işler
    ->uploader.py'yi çağırarak
-5. **uploader.py**
-5. 
-**&nbsp;**  ->ThingsBoard ve Google Drive API / rclone entegrasyonu ile veri ve görselleri sisteme gönderir.
+6. **uploader.py**
+   ->ThingsBoard ve Google Drive API / rclone entegrasyonu ile veri ve görselleri sisteme gönderir.
+
 
 
 
