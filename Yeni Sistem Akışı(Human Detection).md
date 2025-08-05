@@ -1,21 +1,19 @@
 ### Yeni Sistem Akışı (Human Detection Eklenmiş)
 
-1. **camera\_manager.py
-   ->**Belirli zaman aralıklarında fotoğraf çekmeye devam eder ve 1 dakikalık (son 12 fotoğraf) buffer tutar.
-   ->change\_detector.py tarafından tetiklenirse, ek olarak n+1 fotoğraf veya kısa seri (2–3 kare) çeker.
-   ->Bu kare(ler) detector.py'ye yönlendirilir.
-2. **change\_detector.py
-   ->**Son çekilen kare ile bir önceki kareyi karşılaştırır.
-   ->Anlamlı değişim tespit edilirse → detector.py çağrılır.
-3. **detector.py (MediaPipe)
-   ->**Kamera modülünden gelen kare(ler)i alır.
-   ->MediaPipe kullanarak insan tespiti yapar ve toplam kişi sayısını döndürür.
-   ->Sonucu (kişi sayısı + kareler) event\_handler mantığına aktarır.
-4. **event\_handler.py (önceki sürümlerde olduğu gibi)**
-   ->İnsan tespit olayını işler
-   ->uploader.py'yi çağırarak
-6. **uploader.py**
-   ->ThingsBoard ve Google Drive API / rclone entegrasyonu ile veri ve görselleri sisteme gönderir.
+1. **camera\_manager.py**
+   ->Kameradan belirli aralıklarla fotoğraf çeker ve son 12 kareyi saklar.
+   ->Son iki kareyi change_detector ile karşılaştırır.
+   ->Değişim varsa 3 hızlı kare çeker ve tüm fotoğrafları detector'e gönderir.
+2. **change\_detector.py**
+   ->İki kare arasındaki farkı kontrol eder.
+   ->Belirgin değişiklik varsa True, yoksa False döndürür.
+3. **detector.py (MediaPipe)**
+   ->Gelen karelerde insan sayısını tespit eder (YOLOv4-tiny ile).
+   ->Sonuçları txt dosyasına yazar ve klasörler.
+   ->uploader'ı çağırarak veriyi ThingsBoard ve Google Drive’a yollar.
+4. **uploader.py**
+   ->Olay verilerini ThingsBoard’a MQTT ile gönderir.
+   ->Fotoğrafları ve txt dosyasını zipleyip Google Drive’a yükler.
 
 
 
