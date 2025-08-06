@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 class ChangeDetector:
-    def __init__(self, diff_threshold=50000):
+    def __init__(self, diff_threshold=120000):
         # Fark eşik değeri: ne kadar değişiklikte tetikleme olsun
         self.diff_threshold = diff_threshold
 

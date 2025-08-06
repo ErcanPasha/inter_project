@@ -1,9 +1,11 @@
-import cv2
+import subprocess
 import time
 from collections import deque
 import os
+import shutil
 from change_detector import ChangeDetector
-from detector import Detector 
+from detector import Detector
+from uploader import Uploader
 
 class CameraManager:
     def __init__(self, save_dir="Images", buffer_size=12, interval=5):
@@ -12,51 +14,64 @@ class CameraManager:
         self.interval = interval
         self.frame_buffer = deque(maxlen=buffer_size)
 
-        # Değişim ve insan tespiti sınıfları//Detection classes
         self.change_detector = ChangeDetector()
         self.detector = Detector()
+        self.uploader = Uploader()
 
-        # Kayıt klasörü yoksa oluştur//Creating folder
+        # Create save directory if not exists
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
-        # Kamera başlatma
-        self.camera = cv2.VideoCapture(0)   # 0 = default camera
+    def capture_frame(self, is_case_photo=False):
+        """Capture a single frame using libcamera-jpeg and add it to buffer"""
+        timestamp_str = time.strftime("%Y%m%d_%H%M%S")
+        if is_case_photo:
+            filename = os.path.join(self.save_dir, f"case_photo_{timestamp_str}.jpg")
+        else:
+            filename = os.path.join(self.save_dir, f"frame_{timestamp_str}.jpg")
 
-    def capture_frame(self):
-        """Tek kare yakala ve buffer’a ekle"""
-        ret, frame = self.camera.read()
-        if not ret:
-            print("Capturing failed!")
+        cmd = ["libcamera-jpeg", "-o", filename, "-n"]
+        result = subprocess.run(cmd, capture_output=True)
+
+        if result.returncode != 0:
+            print(f"Warning: Capturing failed for {'case photo' if is_case_photo else 'frame'}!")
             return None
 
-        timestamp = int(time.time())
-        filename = os.path.join(self.save_dir, f"frame_{timestamp}.jpg")
-        cv2.imwrite(filename, frame)
+        if not is_case_photo:
+            self.frame_buffer.append(filename)
 
-        # Buffer’a ekle (12 kareden fazlasını otomatik siler)
-        self.frame_buffer.append(filename)
+            # Ensure only last N photos exist on disk
+            existing_files = sorted(
+                [f for f in os.listdir(self.save_dir) if f.startswith("frame_") and f.endswith(".jpg")]
+            )
+            extra_files = len(existing_files) - self.buffer_size
+            if extra_files > 0:
+                for old_file in existing_files[:extra_files]:
+                    os.remove(os.path.join(self.save_dir, old_file))
+                    print(f"Old photo removed: {old_file}")
+
         return filename
 
-    def capture_series(self, count=3):
-        """Değişim tespit edilirse seri fotoğraf çekimi"""
-        series_paths = []
-        for i in range(count):
-            path = self.capture_frame()
-            if path:
-                series_paths.append(path)
-            time.sleep(0.2)  # Seri çekim için kısa bekleme
-        return series_paths
+    def save_last_12(self):
+        """Save the last 12 buffered frames into a timestamped folder"""
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        event_dir = os.path.join(self.save_dir, f"event_{timestamp}")
+        os.makedirs(event_dir)
+
+        for img_path in list(self.frame_buffer):
+            shutil.copy(img_path, event_dir)
+
+        print(f"Last 12 frames copied to folder: {event_dir}")
+        return event_dir
 
     def run_loop(self):
-        """Sürekli fotoğraf çekme, değişim kontrolü ve insan tespiti//Continuous photography, change detection and human detection"""
+        """Main loop for continuous capture, change detection, detection and uploading"""
         try:
             while True:
                 image_path = self.capture_frame()
                 if image_path:
-                    print(f"New frame taken: {image_path}")
+                    print(f"New frame captured: {image_path}")
 
-                    # En az iki kare varsa değişim kontrolü yap
                     if len(self.frame_buffer) >= 2:
                         latest_frame = self.frame_buffer[-1]
                         previous_frame = self.frame_buffer[-2]
@@ -67,17 +82,51 @@ class CameraManager:
                         change = False
 
                     if change:
-                        print("Change detected, starting burst...")
-                        series = self.capture_series()
+                        print("Change detected, starting event process...")
 
-                        # n ve n-1 kareleri + seri kareler → detector.py'ye gönderim
-                        all_images = [latest_frame, previous_frame] + series
-                        result = self.detector.run(all_images)
-                        print(f"Detector result: {result}")
+                        # Cooldown start
+                        start_cooldown = time.time()
+
+                        # Save last 12 images to folder
+                        last12_dir = self.save_last_12()
+
+                        # Capture case photo
+                        case_photo = self.capture_frame(is_case_photo=True)
+                        if case_photo:
+                            print(f"Case photo captured: {case_photo}")
+                        else:
+                            print("Warning: Case photo could not be captured!")
+
+                        # Run detector (n, n-1, case_photo)
+                        print(f"Detector input images:\n n-1={previous_frame}\n n={latest_frame}\n case_photo={case_photo}")
+                        detector_result = self.detector.run(
+                            [latest_frame, previous_frame, case_photo]
+                        )
+
+                        if detector_result:
+                            # Upload detector results and last 12 images
+                            self.uploader.upload_event(
+                                detector_event_dir=detector_result["event_dir"],
+                                last12_dir=last12_dir,
+                                timestamp=detector_result["timestamp"]
+                            )
+
+                        # Cooldown period (10 seconds total)
+                        elapsed = time.time() - start_cooldown
+                        if elapsed < 10:
+                            wait_time = 10 - elapsed
+                            print(f"Cooldown active, waiting {wait_time:.2f} seconds...")
+                            time.sleep(wait_time)
 
                 time.sleep(self.interval)
+
         except KeyboardInterrupt:
-            print("Loop Stopped.")
+            print("Loop stopped by user.")
         finally:
-            self.camera.release()
-            cv2.destroyAllWindows()
+            print("Program terminated.")
+
+
+# ---- Entry point ----
+if __name__ == "__main__":
+    cam = CameraManager()
+    cam.run_loop()

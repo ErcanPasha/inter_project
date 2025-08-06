@@ -4,7 +4,8 @@ import shutil
 from datetime import datetime
 
 class Detector:
-    def __init__(self, output_dir="Detections",
+    def __init__(self, 
+                 output_dir="Detections",
                  cfg_path="yolov4-tiny.cfg",
                  weights_path="yolov4-tiny.weights",
                  names_path="coco.names"):
@@ -12,11 +13,11 @@ class Detector:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        # COCO class names
+        # Load class names
         with open(names_path, "r") as f:
             self.classes = [line.strip() for line in f.readlines()]
 
-        # YOLOv4-tiny model yükleme
+        # Load YOLO model
         self.net = cv2.dnn.readNetFromDarknet(cfg_path, weights_path)
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
@@ -25,9 +26,10 @@ class Detector:
         self.output_layers = [self.layer_names[i - 1] for i in self.net.getUnconnectedOutLayers()]
 
     def count_people(self, image_path):
+        """Count number of people in a single image using YOLOv4-tiny"""
         image = cv2.imread(image_path)
         if image is None:
-            print(f"Image could not be read: {image_path}")
+            print(f"Warning: Failed to read image: {image_path}")
             return 0
 
         (H, W) = image.shape[:2]
@@ -41,54 +43,56 @@ class Detector:
                 scores = detection[5:]
                 class_id = int(scores.argmax())
                 confidence = scores[class_id]
-                if self.classes[class_id] == "person" and confidence > 0.5:
+                if self.classes[class_id] == "person" and confidence > 0.65:
                     count += 1
         return count
 
     def run(self, images):
         """
-        images: [n_frame, n_minus_1_frame, fast_1, fast_2 ...]
-        1) İnsan sayısı tespiti//Detection of people number
-        2) Zaman damgalı klasör oluşturma//Creating a timestamped folder
-        3) Txt dosyası oluşturma//Creating folder txt
+        images: [n_frame, n_minus_1_frame, case_photo]
+        Returns:
+            {
+                "event_dir": <folder path>,
+                "txt_path": <txt file path>,
+                "zip_path": <zip file path>,
+                "counts": {"n-1": int, "n": int, "case_photo": int},
+                "timestamp": <event timestamp>
+            }
         """
-        if len(images) < 2:
-            print("Not Enough Images")
+        if len(images) < 3:
+            print("Warning: Detector requires [n, n-1, case_photo].")
             return None
 
-        # Zaman damgalı klasör ismi//Named timestamp folder
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         event_dir = os.path.join(self.output_dir, f"event_{timestamp}")
         os.makedirs(event_dir)
 
-        # Txt dosyası için sonuç listesi//Result list for Txt folder
-        counts = []
-        labels = []
+        # Count people
+        counts = {
+            "n-1": self.count_people(images[1]),
+            "n": self.count_people(images[0]),
+            "case_photo": self.count_people(images[2])
+        }
 
-        # n-1 → images[1], n → images[0], others fast_x
-        labels.append("n-1")
-        counts.append(self.count_people(images[1]))
-
-        labels.append("n")
-        counts.append(self.count_people(images[0]))
-
-        for i, fast_img in enumerate(images[2:], start=1):
-            labels.append(f"fast_{i}")
-            counts.append(self.count_people(fast_img))
-
-        # Txt oluşturma//creating
+        # Save counts to txt
         txt_path = os.path.join(event_dir, "counts.txt")
         with open(txt_path, "w") as f:
-            for label, count in zip(labels, counts):
+            for label, count in counts.items():
                 f.write(f"{label}: {count}\n")
 
-        # Fotoğrafları klasöre kopyala//Photo copy to folder
+        # Copy related images
         for img_path in images:
-            shutil.copy(img_path, event_dir)
+            if img_path:
+                shutil.copy(img_path, event_dir)
+
+        # Zip event folder
+        zip_path = shutil.make_archive(event_dir, 'zip', event_dir)
+        print(f"Detection results saved: {zip_path}")
 
         return {
             "event_dir": event_dir,
             "txt_path": txt_path,
-            "counts": dict(zip(labels, counts)),
+            "zip_path": zip_path,
+            "counts": counts,
             "timestamp": timestamp
         }
