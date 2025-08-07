@@ -91,17 +91,17 @@ Sistemin temel yapısı:
 Unutmadan: 💻 Tüm adımlar Windows üzerinde cmd kullanılarak yapıldı.
 1. Başlarken
    	Git'e başlamadan önce git --version komutuyla sistemde kurulu olup olmadığını ve güncel olup olmadığını kontrol etmek iyi bir adımdı. Sonrasında, bir dosya ile Git arasında bağlantı kurmanın iki yolu var:
-   	->**git clone <URL>:** Uzaktaki bir repoyu hızlıca yerel bilgisayara kopyalar
-   	->**git init:** İçinde bulunduğun klasörü bir Git reposuna çevirir. .git adlı gizli bir klasör oluşturur ve bu klasörde Git'in kontrol mekanizması başlar.(Bu projede git init yolunu kullandım)
+   	\n**->git clone <URL>:** Uzaktaki bir repoyu hızlıca yerel bilgisayara kopyalar
+   	\n**->git init:** İçinde bulunduğun klasörü bir Git reposuna çevirir. .git adlı gizli bir klasör oluşturur ve bu klasörde Git'in kontrol mekanizması başlar.(Bu projede git init yolunu kullandım)
    
 2. Uzak Repo Tanımlama
    git init sonrası Git'i bir uzak repoyla eşleştirmek gerekir:
-   	**->git remote add origin <URL>:** Uzak repo bağlantısını kurar.
-   	**->git push -u origin main:** Ana branch’i (eski adıyla "master") oluşturur ve ilk gönderimi yapar.
-   	**->git pull origin main:** Uzakta yapılan değişiklikleri yerel makineye çeker. Ancak eğer sadece tek kişilik, lokal odaklı bir repo kullanıyorsanız, bu komut her zaman gerekli olmayabilir
+   	\n**->git remote add origin <URL>:** Uzak repo bağlantısını kurar.
+   	\n**->git push -u origin main:** Ana branch’i (eski adıyla "master") oluşturur ve ilk gönderimi yapar.
+   	\n**->git pull origin main:** Uzakta yapılan değişiklikleri yerel makineye çeker. Ancak eğer sadece tek kişilik, lokal odaklı bir repo kullanıyorsanız, bu komut her zaman gerekli olmayabilir
    🥨Ekstra olarak:
-   	**->git remote remove origin:** Bağlantıyı koparır ama .git klasörü içeride kalır
-   	->**rmdir /s /q .git:** .git klasörünü komple siler ve geçmiş bağlantıları tamamen kaldırır. Geri dönüşü yok, dikkatli kullanmak gerek.
+   	\n**->git remote remove origin:** Bağlantıyı koparır ama .git klasörü içeride kalır
+   	\n**->rmdir /s /q .git:** .git klasörünü komple siler ve geçmiş bağlantıları tamamen kaldırır. Geri dönüşü yok, dikkatli kullanmak gerek.
    
 3. Dosya Takibi – Stage ve Commit Süreci
    	Burada işler biraz daha ilginçleşiyor. Dosya sisteminde yaptığın değişiklikler Git'e otomatik olarak yansımaz. Bu yüzden “ne göndermek istiyorsun?” sorusuna cevap olarak önce dosyaları Stage adı verilen alana eklemen gerekiyor.
