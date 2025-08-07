@@ -2,7 +2,8 @@
 
  	Bu dosya, sadece yaptığım projeyi tanıtmak için yazılmadı. Aynı zamanda bu projeyle uğraşırken aklıma takılan, üzerine düşündüğüm ve keşke daha önce bilseydim dediğim şeyleri de bir araya getirdiğim bir not defteri gibi düşünebilirsiniz. Teknik bir rapordan çok, deneyim odaklı bir özet olsun istedim. Elbette bu süreçte notlarımda eksiklik, hata veya gözden kaçırmış olduğum noktalar olabilir. Bunlar için şimdiden özürlerimi iletmek isterim 😅.
 
- 
+
+&nbsp;	Hemen denk gelmişken bundan da bahsedeyim, Git üzerinden .md olarak tutacağım bu belgeyi yazarken aralarında tek satır (tek enter) bulunduğu için Git'in kendi Preview gösteriminde baya kötü ve çirkin bir görüntü vardı. Aralarında boşluk isterseniz min 2 enter'lık boşluk bulunmalı
 
  	Staja başlamadan önce Raspberry Pi benim için sadece adını duyduğum "minik bir bilgisayardı." Ne işe yaradığını, ne kadar geniş bir kullanım alanı olduğunu, sanıldığı kadar kısıtlı olmadığını ve bu kadar güçlü bir yapıya sahip olduğunu bu süreçte öğrenmeye başladım. Özellikle proje fikrini geliştirme aşamasında bu bakış açısı değişikliği bende çok şey etkiledi.
 
@@ -158,7 +159,7 @@ Unutmadan: 💻 Tüm adımlar Windows üzerinde cmd kullanılarak yapıldı.
    
 4. Branch (Dal) Mantığı
    	Git'in en sevdiğim yanlarından biri de branch sistemi. Çünkü farklı fikirleri ayrı ayrı test edebilmek, çalışmaları karıştırmadan ilerletmek mümkün oluyor.
-	
+
    	**->git branch:**boş bırakıldığında güncel lokalindeki branchleri ve hangi branch üzerinde olduğunu gösteriyor. Hangi branch üzerinde olduğn önemli çünkü mlsf push yaparken push işlemini sadece üstünde bulunduğun branch'e yapabilrisin
 
    	**->git checkout -b deneme\_branchi:**branch oluşturarak başlayalım. deneme\_branchi isminde bir branch (dal) oluşturur
