@@ -1,37 +1,46 @@
+import sys
 import cv2
 import numpy as np
 
-class ChangeDetector:
-    def __init__(self, diff_threshold=120000):
-        # Fark eşik değeri: ne kadar değişiklikte tetikleme olsun
-        self.diff_threshold = diff_threshold
+def compare_images(image1_path, image2_path, threshold=20):
+    # 1) Fotoğrafları oku (gri tonlamalı)
+    img1 = cv2.imread(image1_path, cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread(image2_path, cv2.IMREAD_GRAYSCALE)
 
-    def detect_change(self, images):
-        """
-        Kendisine gelen iki fotoğrafı karşılaştırır//Comparing two photos come from camera_manager (n ve n-1).
-        images: [n_frame_path, n_minus_1_frame_path]
-        True: değişim var//change, False: değişim yok//no change
-        """
-        if len(images) != 2:
-            print("Karşılaştırma için iki görüntü yolu gerekli.")
-            return False
+    if img1 is None or img2 is None:
+        print("0")
+        return
 
-        img1 = cv2.imread(images[0])
-        img2 = cv2.imread(images[1])
+    # 2) Fotoğraf boyutlarını eşitle
+    if img1.shape != img2.shape:
+        img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
 
-        if img1 is None or img2 is None:
-            print("Fotoğraf(lar) yüklenemedi.")
-            return False
+    # 3) Farkı al
+    diff = cv2.absdiff(img1, img2)
 
-        # Gri ton ve blur ile küçük gürültüleri azalt
-        gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-        gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-        gray1 = cv2.GaussianBlur(gray1, (21, 21), 0)
-        gray2 = cv2.GaussianBlur(gray2, (21, 21), 0)
+    # 4) Gürültü azaltma (küçük farkları temizlemek için)
+    blur = cv2.GaussianBlur(diff, (5, 5), 0)
 
-        # Fark ve threshold
-        diff = cv2.absdiff(gray1, gray2)
-        _, thresh = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
-        change_score = np.sum(thresh)
+    # 5) İkili maske (threshold)
+    _, thresh_img = cv2.threshold(blur, 25, 255, cv2.THRESH_BINARY)
 
-        return change_score > self.diff_threshold
+    # 6) Beyaz piksel sayısı (fark miktarı)
+    diff_pixels = np.sum(thresh_img == 255)
+    total_pixels = img1.shape[0] * img1.shape[1]
+    diff_percentage = (diff_pixels / total_pixels) * 100
+
+    # 7) Threshold kontrolü
+    if diff_percentage > threshold:
+        print("1")  # değişim var
+    else:
+        print("0")  # değişim yok
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("0")
+        sys.exit(0)
+
+    image1_path = sys.argv[1]
+    image2_path = sys.argv[2]
+    # Default threshold: 30 (%)
+    compare_images(image1_path, image2_path, threshold=20)
