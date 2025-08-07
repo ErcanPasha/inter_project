@@ -1,0 +1,42 @@
+PTE_SSDMS – Project Version History and Code Overview
+
+Version 1 – Basic Change Detection (Prototype)
+--------------------------------------------------
+• camera_loop.py:
+  - Captures an image every 5 seconds using the Pi Camera.
+• compare_image.py:
+  - Compares two consecutive images pixel-by-pixel to detect change.
+• upload_drive.py:
+  - Uploads both "before" and "after" images to Google Drive using rclone.
+
+Version 2 – Modular Event Pipeline Introduced
+--------------------------------------------------
+• change_detector.py:
+  - Replaces compare_image.py.
+  - Applies a pixel-based difference algorithm and compares it with a threshold to determine change.
+• event_handler.py:
+  - Responds to detected changes by preparing uploads and other post-detection actions.
+• main_cycle.py:
+  - Central orchestration script: initiates camera, handles detection, and invokes event_handler.
+
+Version 3 – Performance Optimization
+--------------------------------------------------
+• Files remained the same: change_detector.py, event_handler.py, main_cycle.py
+• Improvements:
+  - File cleanup logic implemented to retain only recent images.
+  - Enhanced timing synchronization to reduce workflow delays.
+  - More stable directory and naming structure.
+  - Threshold tuning based on test observations.
+
+Version 4 – Human Detection and Code Refactor
+--------------------------------------------------
+• camera_manager.py:
+  - Replaces main_cycle.py as the main coordinator of all processes.
+  - Captures and stores images in a rolling buffer (latest 12 images).
+• change_detector.py:
+  - Updated version with improved threshold (120000) and cleaner logic.
+• detector.py:
+  - Detects and counts the number of humans in the most recent image using lightweight model logic.
+• uploader.py:
+  - Reads folder name and image info from a .txt file.
+  - Compresses images into a zip and uploads the archive to Google Drive.
