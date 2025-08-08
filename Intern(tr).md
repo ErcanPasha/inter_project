@@ -71,35 +71,35 @@ Sistemin temel yapısı:
 
 | No |_Başlık_________________| _Örnek Kullanım_________________|
 
-| -- |_----------------------_|_-------------------------------_|
+| -- |------------------------ | ---------------------------------|
 
-| 1  | Basic commands---------| ------`AT`, `ATI`, `ATE0`-------|
+|-1--| Basic commands--------- | ------`AT`, `ATI`, `ATE0`-------|
 
-| 2  | Call Control-----------| -----`ATA`, `ATH`, `AT+CLCC`----|
+|-2--| Call Control----------- | -----`ATA`, `ATH`, `AT+CLCC`----|
 
-| 3  | Network Service--------| -----`AT+COPS`, `AT+CREG`-------|
+|-3--| Network Service-------- | -----`AT+COPS`, `AT+CREG`-------|
 
-| 4  | SMS--------------------| `AT+CMGF`, `AT+CMGS`, `AT+CMGR`-|
+|-4--| SMS-------------------- | `AT+CMGF`, `AT+CMGS`, `AT+CMGR`-|
 
-| 5  | Packet Domain----------| ----`AT+CGDCONT`, `AT+CGACT`----|
+|-5--| Packet Domain---------- | ----`AT+CGDCONT`, `AT+CGACT`----|
 
-| 6  | Phonebook--------------| ------`AT+CPBS`, `AT+CPBR`------|
+|-6--| Phonebook-------------- | ------`AT+CPBS`, `AT+CPBR`------|
 
-| 7  | Supplementary Services | Çağrı yönlendirme vb.-----------|
+|-7--| Supplementary Services  | Çağrı yönlendirme vb.-----------|
 
-| 8  | Audio------------------| Mikrofon/ses ayarları-----------|
+|-8--| Audio------------------ | Mikrofon/ses ayarları-----------|
 
-| 9  | Clock------------------| Saat ayarı----------------------|
+|-9--| Clock------------------ | Saat ayarı----------------------|
 
-| 10 | SIM Toolkit------------| Gelişmiş SIM servisleri---------|
+|-10-| SIM Toolkit------------ | Gelişmiş SIM servisleri---------|
 
-| 11 | GPIO-------------------| Dijital pin kontrolü------------|
+|-11-| GPIO------------------- | Dijital pin kontrolü------------|
 
-| 12 | GNSS-------------------| GPS konumu alma-----------------|
+|-12-| GNSS------------------- | GPS konumu alma-----------------|
 
-| 13 | File system------------| Dahili hafıza ile dosya yaz/oku-|
+|-13-| File system------------ | Dahili hafıza ile dosya yaz/oku-|
 
-| 14 | HTTP/FTP/SSL-----------| Web’e veri gönderme / alma------|
+|-14-| HTTP/FTP/SSL----------- | Web’e veri gönderme / alma------|
 
 
 
