@@ -69,37 +69,37 @@ Sistemin temel yapısı:
 
 📎 (Not: Yakında buraya AT komutlarıyla ilgili PDF kaynağımın linkini bırakacağım. Başlık sırası ile pdf uyuşmuo olabilir. Gpt bu konuda beni kandırdı xd)
 
-| No | Başlık                 | Örnek Kullanım                  |
+| No |_Başlık_________________| _Örnek Kullanım_________________|
 
-| -- | ---------------------- | ------------------------------- |
+| -- |_----------------------_|_-------------------------------_|
 
-| 1  | Basic commands         | `AT`, `ATI`, `ATE0`             |
+| 1  | Basic commands---------| ------`AT`, `ATI`, `ATE0`-------|
 
-| 2  | Call Control           | `ATA`, `ATH`, `AT+CLCC`         |
+| 2  | Call Control-----------| -----`ATA`, `ATH`, `AT+CLCC`----|
 
-| 3  | Network Service        | `AT+COPS`, `AT+CREG`            |
+| 3  | Network Service--------| -----`AT+COPS`, `AT+CREG`-------|
 
-| 4  | SMS                    | `AT+CMGF`, `AT+CMGS`, `AT+CMGR` |
+| 4  | SMS--------------------| `AT+CMGF`, `AT+CMGS`, `AT+CMGR`-|
 
-| 5  | Packet Domain          | `AT+CGDCONT`, `AT+CGACT`        |
+| 5  | Packet Domain----------| ----`AT+CGDCONT`, `AT+CGACT`----|
 
-| 6  | Phonebook              | `AT+CPBS`, `AT+CPBR`            |
+| 6  | Phonebook--------------| ------`AT+CPBS`, `AT+CPBR`------|
 
-| 7  | Supplementary Services | Çağrı yönlendirme vb.           |
+| 7  | Supplementary Services | Çağrı yönlendirme vb.-----------|
 
-| 8  | Audio                  | Mikrofon/ses ayarları           |
+| 8  | Audio------------------| Mikrofon/ses ayarları-----------|
 
-| 9  | Clock                  | Saat ayarı                      |
+| 9  | Clock------------------| Saat ayarı----------------------|
 
-| 10 | SIM Toolkit            | Gelişmiş SIM servisleri         |
+| 10 | SIM Toolkit------------| Gelişmiş SIM servisleri---------|
 
-| 11 | GPIO                   | Dijital pin kontrolü            |
+| 11 | GPIO-------------------| Dijital pin kontrolü------------|
 
-| 12 | GNSS                   | GPS konumu alma                 |
+| 12 | GNSS-------------------| GPS konumu alma-----------------|
 
-| 13 | File system            | Dahili hafıza ile dosya yaz/oku |
+| 13 | File system------------| Dahili hafıza ile dosya yaz/oku-|
 
-| 14 | HTTP/FTP/SSL           | Web’e veri gönderme / alma      |
+| 14 | HTTP/FTP/SSL-----------| Web’e veri gönderme / alma------|
 
 
 
@@ -160,9 +160,9 @@ Unutmadan: 💻 Tüm adımlar Windows üzerinde cmd kullanılarak yapıldı.
 4. Branch (Dal) Mantığı
    	Git'in en sevdiğim yanlarından biri de branch sistemi. Çünkü farklı fikirleri ayrı ayrı test edebilmek, çalışmaları karıştırmadan ilerletmek mümkün oluyor.
 
-   	**->git branch:**boş bırakıldığında güncel lokalindeki branchleri ve hangi branch üzerinde olduğunu gösteriyor. Hangi branch üzerinde olduğn önemli çünkü mlsf push yaparken push işlemini sadece üstünde bulunduğun branch'e yapabilrisin
+   	**->git branch:** boş bırakıldığında güncel lokalindeki branchleri ve hangi branch üzerinde olduğunu gösteriyor. Hangi branch üzerinde olduğn önemli çünkü mlsf push yaparken push işlemini sadece üstünde bulunduğun branch'e yapabilrisin
 
-   	**->git checkout -b deneme\_branchi:**branch oluşturarak başlayalım. deneme\_branchi isminde bir branch (dal) oluşturur
+   	**->git checkout -b deneme\_branchi:** branch oluşturarak başlayalım. deneme\_branchi isminde bir branch (dal) oluşturur
 
    	**->git checkout branch\_adi:** branch\_adi isimli branch'e geçmeni sağlar
 
